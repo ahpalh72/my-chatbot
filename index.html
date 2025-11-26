@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Abdul Hakeem Chatbot</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body{background:#0d1117;color:#c9d1d9;margin:0;font-family:Segoe UI}
+    .chat{max-width:500px;margin:20px auto;background:#161b22;border-radius:16px;overflow:hidden;border:1px solid #30363d}
+    .header{padding:20px;text-align:center;background:#238636;color:white;font-size:20px}
+    .messages{height:60vh;overflow-y:auto;padding:20px;background:#0d1117}
+    .msg{margin:10px 0;padding:12px 16px;border-radius:12px;max-width:80%}
+    .user{background:#1f6feb;color:white;align-self:flex-end}
+    .bot{background:#21262d;align-self:flex-start}
+    .input{padding:15px;display:flex;gap:10px;background:#161b22}
+    input{flex:1;padding:14px;border-radius:12px;border:none;background:#0d1117;color:white;font-size:16px}
+    button{padding:14px 20px;background:#238636;color:white;border:none;border-radius:12px;font-weight:bold}
+    .flex{display:flex;flex-direction:column}
+    .user-msg{ align-self:flex-end; background:#1f6feb; color:white; border-radius:18px 18px 4px 18px}
+    .bot-msg{ align-self:flex-start; background:#30363d; border-radius:18px 18px 18px 4px}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function Chatbot() {
+      const [messages, setMessages] = useState([
+        { text: "سلام! میں عبدالحکیم کا Chatbot ہوں 😊\nآپ کا نام کیا ہے؟", sender: "bot" }
+      ]);
+      const [input, setInput] = useState("");
+      const [userName, setUserName] = useState("");
+      const messagesEndRef = useRef(null);
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      };
+
+      useEffect(() => {
+        scrollToBottom();
+      }, [messages]);
+
+      const responses = {
+        greetings: ["ہیلو", "سلام", "ہائے", "ہیلو بھائی", "ہائے بھائی"],
+        name: ["میرا نام عبدالحکیم ہے", "عبدالحکیم", "حکیم"],
+        todo: ["ٹوڈو ایپ", "todo app", "اپنی ٹوڈو ایپ"],
+        thanks: ["شکریہ", "تھینکس", "بہت مہربانی"],
+        bye: ["اللہ حافظ", "بائی", "خدا حافظ", "ٹھیک ہے"]
+      };
+
+      const getResponse = (msg) => {
+        const lower = msg.toLowerCase();
+
+        if (!userName && lower.includes("نام") || lower.includes("name")) {
+          const name = msg.split(" ").pop();
+          setUserName(name);
+          return `واہ ${name} بہت اچھا نام ہے! 😍\nاب بتائیں کیسے مدد کروں؟`;
+        }
+
+        if (responses.greetings.some(g => lower.includes(g))) {
+          return userName ? `${userName} بھائی کیسے ہو؟ 😊` : "ہیلو! 😊";
+        }
+        if (responses.todo.some(t => lower.includes(t))) {
+          return "واہ! میری Todo App تو آپ نے خود بنائی ہے 🔥\nhttps://ahpalh72.github.io/my-todo-app\nبہت زبردست کام کیا!";
+        }
+        if (responses.thanks.some(t => lower.includes(t))) {
+          return "ارے کوئی بات نہیں بھائی! خوش رہو 😊";
+        }
+        if (responses.bye.some(b => lower.includes(b))) {
+          return "اللہ حافظ بھائی! جب دل کرے واپس آجانا 😊";
+        }
+
+        return "بہت اچھی بات ہے! 😊 اور بتائیں کیا چل رہا ہے؟";
+      };
+
+      const sendMessage = () => {
+        if (!input.trim()) return;
+        setMessages([...messages, { text: input, sender: "user" }]);
+        setTimeout(() => {
+          setMessages(prev => [...prev, { text: getResponse(input), sender: "bot" }]);
+        }, 800);
+        setInput("");
+      };
+
+      return (
+        <div className="chat">
+          <div className="header">🤖 Abdul Hakeem Chatbot</div>
+          <div className="messages flex">
+            {messages.map((m, i) => (
+              <div key={i} className={`msg ${m.sender}-msg`}>
+                {m.text}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="input">
+            <input 
+              value={input} 
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && sendMessage()}
+              placeholder="پیغام لکھیں..."
+            />
+            <button onClick={sendMessage}>بھیجیں</button>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<Chatbot />, document.getElementById('root'));
+  </script>
+</body>
+</html>
